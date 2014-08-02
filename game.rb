@@ -11,10 +11,12 @@ class Game < Hasu::Window
 
   def initialize
     super(WIDTH, HEIGHT, false)
-    @player = Player.new(Vector[WIDTH/2, HEIGHT/2], Gosu::Color.from_hsv(0.1, 1.0, 1.0))
+    center = Vector[WIDTH/2, HEIGHT/2]
+    @player = Player.new(center, Gosu::Color.from_hsv(0.1, 1.0, 1.0))
 
-    @others = 2.times.map do |i|
-      Player.new(Vector[WIDTH/(1 + 2*i), HEIGHT/(1 + 2*i)], Gosu::Color.from_hsv(0.1, 0.5, 1.0))
+    @others = 6.times.map do
+      on_circle = Vector[rand - 0.5, rand - 0.5].normalize * 500
+      Player.new(center + on_circle, Gosu::Color.from_hsv(0.1, 0.5, 1.0))
     end
   end
 

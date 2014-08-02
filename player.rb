@@ -43,7 +43,7 @@ Player = Struct.new(:location, :color) do
   end
 
   def calc_acceleration(other)
-    @acc = (other.location - self.location).normalize
+    @acc = (other.location - self.location).normalize * 0.5
   end
 
   def friction
@@ -52,6 +52,7 @@ Player = Struct.new(:location, :color) do
 
   def accelerate
     @speed += @acc
+    @speed += Vector[rand - 0.5, rand - 0.5].normalize
   end
 
   def move
