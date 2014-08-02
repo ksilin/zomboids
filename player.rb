@@ -1,26 +1,27 @@
 require_relative 'movable'
 require_relative 'core_ext'
+require 'matrix'
 
-Player = Struct.new(:x, :y, :color) do
+Player = Struct.new(:location, :color) do
 
   def left
-    x
+    location.x
   end
 
   def right
-    x + 20
+    location.x + 20
   end
 
   def top
-    y
+    location.y
   end
 
   def bottom
-    y + 20
+    location.y + 20
   end
 
   def follow(other)
-    @speed ||= [0, 0]
+    @speed ||= Vector[0, 0]
 
     calc_acceleration(other)
     accelerate
@@ -38,31 +39,22 @@ Player = Struct.new(:x, :y, :color) do
   end
 
   def constrain_speed
-    @speed[0] = @speed[0].constrain(2)
-    @speed[1] = @speed[1].constrain(2)
+    @speed.normalize
   end
 
   def calc_acceleration(other)
-    vecX = (other.x - self.x)
-    vecY = (other.y - self.y)
-
-    dist2 = Math.sqrt(Float::EPSILON + vecX*vecX + vecY*vecY)
-    @accX = (vecX/dist2).constrain(1)
-    @accY = (vecY/dist2).constrain(1)
+    @acc = (other.location - self.location).normalize
   end
 
   def friction
-    @speed[0] *= 0.9
-    @speed[1] *= 0.9
+    @speed *= 0.9
   end
 
   def accelerate
-    @speed[0] += @accX
-    @speed[1] += @accY
+    @speed += @acc
   end
 
   def move
-    self.x += @speed[0]
-    self.y += @speed[1]
+    self.location += @speed
   end
 end
