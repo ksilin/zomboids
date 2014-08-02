@@ -3,7 +3,6 @@ require 'matrix'
 # Hasu.load 'player.rb'
 require_relative 'player'
 
-
 class Game < Hasu::Window
 
   WIDTH = 640
@@ -11,19 +10,20 @@ class Game < Hasu::Window
 
   def initialize
     super(WIDTH, HEIGHT, false)
-    center = Vector[WIDTH/2, HEIGHT/2]
-    @player = Player.new(center, Gosu::Color.from_hsv(0.1, 1.0, 1.0))
-
-    @others = 6.times.map do
-      on_circle = Vector[rand - 0.5, rand - 0.5].normalize * 500
-      Player.new(center + on_circle, Gosu::Color.from_hsv(0.1, 0.5, 1.0))
-    end
+    @center = Vector[WIDTH/2, HEIGHT/2]
+    reset
   end
 
   def reset
     @frames = 0
     @elapsed_time = 0
     @font = Gosu::Font.new(self, 'Arial', 24)
+    @player = Player.new(@center, Gosu::Color.from_hsv(0.1, 1.0, 1.0))
+
+    @others = 6.times.map do
+      on_circle = Vector[rand - 0.5, rand - 0.5].normalize * 500
+      Player.new(@center + on_circle, Gosu::Color.from_hsv(rand(360), rand, 1.0))
+    end
   end
 
   def update
@@ -43,6 +43,9 @@ class Game < Hasu::Window
     end
     if button_down? Gosu::KbRight
       @player.location.x += 10
+    end
+    if button_down? Gosu::KbSpace
+      reset
     end
   end
 
