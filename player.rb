@@ -24,6 +24,7 @@ Player = Struct.new(:x, :y, :color) do
 
     calc_acceleration(other)
     accelerate
+    friction
     constrain_speed
     move
   end
@@ -37,18 +38,22 @@ Player = Struct.new(:x, :y, :color) do
   end
 
   def constrain_speed
-    @speed[0] = @speed[0].constrain(5)
-    @speed[1] = @speed[1].constrain(5)
+    @speed[0] = @speed[0].constrain(2)
+    @speed[1] = @speed[1].constrain(2)
   end
 
   def calc_acceleration(other)
-    vecX = (other.x - x)
-    vecY = (other.y - y)
+    vecX = (other.x - self.x)
+    vecY = (other.y - self.y)
 
-    dist2 = Math::sqrt(vecX*vecX + vecY*vecY)
+    dist2 = Math.sqrt(Float::EPSILON + vecX*vecX + vecY*vecY)
+    @accX = (vecX/dist2).constrain(1)
+    @accY = (vecY/dist2).constrain(1)
+  end
 
-    @accX = (vecX/dist2).constrain(5)
-    @accY = (vecY/dist2).constrain(5)
+  def friction
+    @speed[0] *= 0.9
+    @speed[1] *= 0.9
   end
 
   def accelerate
@@ -57,7 +62,7 @@ Player = Struct.new(:x, :y, :color) do
   end
 
   def move
-    self.x += @speed[0]*(0.1 + rand)
-    self.y += @speed[1]*(0.1 + rand)
+    self.x += @speed[0]
+    self.y += @speed[1]
   end
 end
