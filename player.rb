@@ -1,40 +1,21 @@
 require_relative 'boid'
 require_relative 'core_ext'
+require_relative 'quad'
 require 'matrix'
 
 class Player
 
   attr_accessor :speed, :color, :location
 
-  def initialize(loc, color)
+  def initialize(loc, drawable = Quad.new(20, Gosu::Color.from_hsv(100, 1.0, 1.0)))
     @location = loc
     @speed = Vector[0, 0]
-    @color = color
+    @drawable = drawable
   end
 
-
-  def left
-    location.x
-  end
-
-  def right
-    location.x + 20
-  end
-
-  def top
-    location.y
-  end
-
-  def bottom
-    location.y + 20
-  end
 
   def draw(window)
-    window.draw_quad(
-        left, top, color,
-        right, top, color,
-        right, bottom, color,
-        left, bottom, color)
+    @drawable.draw(window, location)
   end
 
   def friction

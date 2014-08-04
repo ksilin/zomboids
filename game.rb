@@ -2,6 +2,7 @@ require 'hasu'
 require 'matrix'
 Hasu.load 'player.rb'
 Hasu.load 'boid.rb'
+Hasu.load 'quad.rb'
 # require_relative 'player'
 
 class Game < Hasu::Window
@@ -25,14 +26,15 @@ class Game < Hasu::Window
   end
 
   def create_player
-    @player = Player.new(@center, Gosu::Color.from_hsv(100, 1.0, 1.0))
+    @player = Player.new(@center)
   end
 
   def create_others(how_many = 5)
     @others = how_many.times.map do
       on_circle = Vector[rand - 0.5, rand - 0.5].normalize * 500
       puts "center: #{@center}"
-      Boid.new(@center + on_circle, Vector[0, 0])
+      q = Quad.new(20*(0.5 + rand), Gosu::Color.from_hsv(rand(360), rand, 1.0))
+      Boid.new(@center + on_circle, Vector[0, 0], q)
     end
   end
 

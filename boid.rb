@@ -1,13 +1,13 @@
+
 class Boid
 
   attr_accessor :location, :speed, :size, :color, :friction
 
-  def initialize(loc, spd)
+  def initialize(loc, spd, drawable)
     @location = loc
     @speed = spd
     @force = Vector[0.0, 0.0]
-
-    @color = Gosu::Color.from_hsv(rand(360), rand, 1.0)
+    @drawable= drawable
 
     @weight = 1.0
     @size = 20
@@ -18,13 +18,11 @@ class Boid
 
   def acquire_target
 
-
   end
 
   def calc_force
 
   end
-
 
   def follow(other)
     calc_acceleration(other)
@@ -40,11 +38,11 @@ class Boid
   end
 
   def distance_from(boid)
-    vec_to(boid.location).r
+    vec_to(boid).r
   end
 
-  def vec_to(vector)
-    vector.location - self.location
+  def vec_to(obj)
+    obj.location - self.location
   end
 
   def constrain_speed
@@ -52,32 +50,12 @@ class Boid
     @speed.normalize * @max_speed
   end
 
-  def left
-    location.x
-  end
-
-  def right
-    location.x + size
-  end
-
-  def top
-    location.y
-  end
-
-  def bottom
-    location.y + size
-  end
-
   def apply_friction
     @speed *= friction
   end
 
   def draw(window)
-    window.draw_quad(
-        left, top, color,
-        right, top, color,
-        right, bottom, color,
-        left, bottom, color)
+    @drawable.draw(window, location)
   end
 
   def accelerate
