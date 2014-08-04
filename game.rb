@@ -1,6 +1,7 @@
 require 'hasu'
 require 'matrix'
 Hasu.load 'player.rb'
+Hasu.load 'boid.rb'
 # require_relative 'player'
 
 class Game < Hasu::Window
@@ -11,10 +12,10 @@ class Game < Hasu::Window
   def initialize
     super(WIDTH, HEIGHT, false)
     @center = Vector[WIDTH/2, HEIGHT/2]
-    reset
+    reset_game
   end
 
-  def reset
+  def reset_game
     @frames = 0
     @elapsed_time = 0
     @font = Gosu::Font.new(self, 'Arial', 24)
@@ -30,30 +31,35 @@ class Game < Hasu::Window
   def create_others(how_many = 5)
     @others = how_many.times.map do
       on_circle = Vector[rand - 0.5, rand - 0.5].normalize * 500
-      Player.new(@center + on_circle, Gosu::Color.from_hsv(rand(360), rand, 1.0))
+      puts "center: #{@center}"
+      Boid.new(@center + on_circle, Vector[0, 0])
     end
   end
 
   def update
     @frames +=1
+    puts "@frames: #{@frames}"
 
     @others.each { |p| p.follow(@player) }
 
     if button_down? Gosu::KbUp
-      @player.location.y -= 10
+      @player.speed.y = -10
     end
     if button_down? Gosu::KbDown
-      @player.location.y += 10
+      @player.speed.y = 10
     end
 
     if button_down? Gosu::KbLeft
-      @player.location.x -= 10
+      @player.speed.x = -10
     end
     if button_down? Gosu::KbRight
-      @player.location.x += 10
+      @player.speed.x = 10
     end
+    @player.move
+    @player.speed = Vector[0, 0]
+
     if button_down? Gosu::KbSpace
-      reset
+      reset_game
     end
   end
 

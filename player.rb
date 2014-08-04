@@ -1,8 +1,17 @@
-require_relative 'movable'
+require_relative 'boid'
 require_relative 'core_ext'
 require 'matrix'
 
-Player = Struct.new(:location, :color) do
+class Player
+
+  attr_accessor :speed, :color, :location
+
+  def initialize(loc, color)
+    @location = loc
+    @speed = Vector[0, 0]
+    @color = color
+  end
+
 
   def left
     location.x
@@ -20,30 +29,12 @@ Player = Struct.new(:location, :color) do
     location.y + 20
   end
 
-  def follow(other)
-    @speed ||= Vector[0, 0]
-
-    calc_acceleration(other)
-    accelerate
-    friction
-    constrain_speed
-    move
-  end
-
   def draw(window)
     window.draw_quad(
         left, top, color,
         right, top, color,
         right, bottom, color,
         left, bottom, color)
-  end
-
-  def constrain_speed
-    @speed.normalize
-  end
-
-  def calc_acceleration(other)
-    @acc = (other.location - self.location).normalize * 0.5
   end
 
   def friction
@@ -58,4 +49,5 @@ Player = Struct.new(:location, :color) do
   def move
     self.location += @speed
   end
+
 end
