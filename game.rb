@@ -1,7 +1,7 @@
 require 'hasu'
 require 'matrix'
-# Hasu.load 'player.rb'
-require_relative 'player'
+Hasu.load 'player.rb'
+# require_relative 'player'
 
 class Game < Hasu::Window
 
@@ -18,9 +18,17 @@ class Game < Hasu::Window
     @frames = 0
     @elapsed_time = 0
     @font = Gosu::Font.new(self, 'Arial', 24)
-    @player = Player.new(@center, Gosu::Color.from_hsv(0.1, 1.0, 1.0))
 
-    @others = 6.times.map do
+    create_player
+    create_others
+  end
+
+  def create_player
+    @player = Player.new(@center, Gosu::Color.from_hsv(100, 1.0, 1.0))
+  end
+
+  def create_others(how_many = 5)
+    @others = how_many.times.map do
       on_circle = Vector[rand - 0.5, rand - 0.5].normalize * 500
       Player.new(@center + on_circle, Gosu::Color.from_hsv(rand(360), rand, 1.0))
     end
@@ -52,6 +60,7 @@ class Game < Hasu::Window
   def draw
     @player.draw self
     @others.each { |o| o.draw self }
+    @font.draw("#{@frames}", 0, 0, 0)
   end
 
   def needs_cursor?
