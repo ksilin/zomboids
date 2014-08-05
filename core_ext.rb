@@ -1,24 +1,21 @@
 class Numeric
 
   def signum
-    self/self.abs
+    self < 0 ? -1 : 1
   end
 
-  # does not work right for floats
-  def constrain(max)
+  def constrain(constraint)
 
-    return self if (max.signum != self.signum)
+    return self if (constraint.signum != self.signum)
 
-    op = (max < 0) ? :max : :min
-    [self, max].send(op)
+    op = (constraint < 0) ? :max : :min
+    [self, constraint].send(op)
   end
-
-  # def constrain!(max)
-  #   self = constrain(max)
-  # end
 end
 
 require 'matrix'
+
+# --- convenience methods - x & y for 2d stuff
 
 class Vector
   def x
@@ -37,12 +34,4 @@ class Vector
     self[1] = new_y
   end
 
-
 end
-
-# puts 17.constrain(5)
-# puts 1.constrain(5)
-# puts -3.constrain(5)
-
-# puts -3.constrain(-5)
-# puts -37.constrain(-5)

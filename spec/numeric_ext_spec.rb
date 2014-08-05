@@ -1,4 +1,5 @@
 require 'rspec'
+require 'benchmark'
 require_relative '../core_ext'
 
 describe 'Constraining' do
@@ -89,3 +90,14 @@ describe 'Constraining' do
 
   end
 end
+
+ # 'x < 0 ? -1 : 1' is faster than 'x/x.abs': 10_000_000
+# using abs:     1.550000   0.000000   1.550000 (  1.548747)
+# using < 0:     1.190000   0.000000   1.190000 (  1.194042)
+
+# describe 'signum benchmark' do
+#   Benchmark.bmbm(12) do |x|
+#     x.report('using abs: ') { 10_000_000.times {12345.signum} }
+#     x.report('using < 0: ') { 10_000_000.times {12345.signum2} }
+#   end
+# end
