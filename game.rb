@@ -10,10 +10,12 @@ class Game < Hasu::Window
   WIDTH = 640
   HEIGHT = 480
 
+
   def initialize
     super(WIDTH, HEIGHT, false)
     @center = Vector[WIDTH/2, HEIGHT/2]
     reset_game
+    @player_speed = 10
   end
 
   def reset_game
@@ -45,17 +47,17 @@ class Game < Hasu::Window
     @others.each { |p| p.follow(@player) }
 
     if button_down? Gosu::KbUp
-      @player.speed.y = -10
+      @player.speed.y = -@player_speed
     end
     if button_down? Gosu::KbDown
-      @player.speed.y = 10
+      @player.speed.y = @player_speed
     end
 
     if button_down? Gosu::KbLeft
-      @player.speed.x = -10
+      @player.speed.x = -@player_speed
     end
     if button_down? Gosu::KbRight
-      @player.speed.x = 10
+      @player.speed.x = @player_speed
     end
     @player.move
     @player.speed = Vector[0, 0]
@@ -63,6 +65,9 @@ class Game < Hasu::Window
     if button_down? Gosu::KbSpace
       reset_game
     end
+
+    # OSD
+
   end
 
   def draw

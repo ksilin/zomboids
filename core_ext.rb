@@ -34,4 +34,13 @@ class Vector
     self[1] = new_y
   end
 
+  def constrain(max_length)
+    factor = max_length/self.r
+    if (factor < 1)
+      return self*factor
+    end
+    self
+  end
+
 end
+
