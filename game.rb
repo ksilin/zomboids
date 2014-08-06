@@ -16,7 +16,6 @@ class Game < Hasu::Window
   WIDTH = 640
   HEIGHT = 480
 
-  # TOP_COLOR = Gosu::Color.new(255, 94,82,58)
   TOP_COLOR = Gosu::Color.new(255, 23, 4, 9)
   BOTTOM_COLOR = Gosu::Color.new(255, 61, 51, 39)
   TITLE = 'Zomboid - a Gosu skeleton'
@@ -99,7 +98,7 @@ class Game < Hasu::Window
     @elapsed_time += delta
     @state_time += delta
 
-    if(:enemy_fear == @state && @state_time > 3000)
+    if (:enemy_fear == @state && @state_time > 3000)
       @state = :snafu
     end
 
@@ -115,7 +114,11 @@ class Game < Hasu::Window
     @animation.update(delta)
 
     if (:enemy_fear == @state)
-      @others.each { |p| p.flee(@player) }
+      @others.each { |p|
+        if (p.vec_to(@player).r < 200)
+          p.flee(@player)
+        end
+      }
     else
       @others.each { |p| p.follow(@player) }
     end
