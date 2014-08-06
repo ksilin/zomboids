@@ -15,9 +15,17 @@ class Game < Hasu::Window
   WIDTH = 640
   HEIGHT = 480
 
-  TOP_COLOR = Gosu::Color::BLACK
-  BOTTOM_COLOR = Gosu::Color::BLACK
+  # TOP_COLOR = Gosu::Color.new(255, 94,82,58)
+  TOP_COLOR = Gosu::Color.new(255, 23,4,9)
+  BOTTOM_COLOR = Gosu::Color.new(255, 61,51,39)
   TITLE = 'Zomboid - a Gosu skeleton'
+
+  PALETTE = [Gosu::Color.new(255,0,90,63),
+             Gosu::Color.new(255,0,131,94),
+             Gosu::Color.new(255,0,171,128),
+             Gosu::Color.new(255,249,14,97),
+             Gosu::Color.new(255,251,64,64)
+  ]
 
   attr_reader :player, :others, :frames
 
@@ -59,7 +67,7 @@ class Game < Hasu::Window
   def create_others(how_many = 5)
     @others = how_many.times.map do
       on_circle = Vector[rand - 0.5, rand - 0.5].normalize * 500
-      q = Quad.new(20*(0.5 + rand), Gosu::Color.from_hsv(rand(360), rand, 1.0))
+      q = Quad.new(20*(0.5 + rand), PALETTE[rand(PALETTE.size)])
       Boid.new(@center + on_circle, Vector[0, 0], q)
     end
   end

@@ -7,7 +7,7 @@ class Player
 
   attr_accessor :speed, :acc, :color, :location
 
-  def initialize(loc, drawable = Quad.new(20, Gosu::Color.from_hsv(100, 1.0, 1.0)))
+  def initialize(loc, drawable = Quad.new(20, Gosu::Color.new(255, 251,242,201)))
     @location = loc
     @speed = Vector[0, 0]
     @drawable = drawable

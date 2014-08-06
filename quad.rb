@@ -1,6 +1,6 @@
 class Quad
 
-  def initialize(size, color, border_color = Gosu::Color::WHITE)
+  def initialize(size, color, border_color = Gosu::Color::BLACK)
     @size = size
     @color = color
     @border_color = border_color
