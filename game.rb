@@ -4,6 +4,7 @@ Hasu.load 'player.rb'
 Hasu.load 'boid.rb'
 Hasu.load 'quad.rb'
 Hasu.load 'osd.rb'
+Hasu.load 'animation.rb'
 # require_relative 'player'
 
 class Game < Hasu::Window
@@ -40,9 +41,7 @@ class Game < Hasu::Window
     @background_music = Gosu::Song.new(self, 'assets/audio/background.ogg')
     @background_music.volume = 0.1
 
-    @animation = (1..6).map{|i| Gosu::Image.new(self, "assets/graphics/bob-#{i}.png")}
-    @animation_length = 350
-    @current_animation_pos = 0
+    @animation = Animation.new((1..6).map{|i| Gosu::Image.new(self, "assets/graphics/bob-#{i}.png")}, 350)
 
     reset_game
   end
@@ -87,10 +86,7 @@ class Game < Hasu::Window
     @elapsed_time += delta
     @last_frame_start = Gosu::milliseconds
 
-    @current_animation_pos += delta
-    if @current_animation_pos > @animation_length
-      @current_animation_pos = 0
-    end
+    @animation.update(delta)
 
     @others.each { |p| p.follow(@player) }
 
@@ -106,9 +102,7 @@ class Game < Hasu::Window
     draw_background
     @cherry.draw(@center.x, @center.y, 0, 0.5, 0.5)
 
-    idx = ([@animation.size - 1, (@animation.size) * @current_animation_pos/@animation_length].min)
-    img_to_draw = @animation[idx]
-    img_to_draw.draw(WIDTH - 32, HEIGHT - 32, 0, 1, 1, Gosu::Color::GREEN)
+    @animation.draw(Vector[WIDTH - 32, HEIGHT - 32])
 
     @player.draw(self)
     @others.each { |o| o.draw(self) }
