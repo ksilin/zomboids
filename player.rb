@@ -16,7 +16,6 @@ class Player
     @acc = Vector[0, 0]
   end
 
-
   def draw(window)
     @drawable.draw(window, location)
   end
@@ -29,9 +28,9 @@ class Player
     @speed += @acc
   end
 
-   def constrain_acc
-     @acc = @acc.contrain(@max_acc)
-   end
+  def constrain_acc
+    @acc = @acc.contrain(@max_acc)
+  end
 
   def move
     self.location += @speed
@@ -51,6 +50,28 @@ class Player
 
   def move_right
     @acc.x = @acc_delta
+  end
+
+  def button_down(id)
+    case id
+      when Gosu::KbUp
+        move_up
+      when Gosu::KbDown
+        move_down
+      when Gosu::KbLeft
+        move_left
+      when Gosu::KbRight
+        move_right
+    end
+  end
+
+  def button_up(id)
+    case id
+      when Gosu::KbUp, Gosu::KbDown
+        @acc.y = 0
+      when Gosu::KbLeft, Gosu::KbRight
+        @acc.x = 0
+    end
   end
 
 end

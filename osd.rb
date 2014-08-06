@@ -26,4 +26,15 @@ class OSD
     @visible = !@visible
   end
 
+  def button_up(id)
+  end
+
+
+  def button_down(id)
+    case id
+      when Gosu::KbO
+        toggle
+    end
+  end
+
 end

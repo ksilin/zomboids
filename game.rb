@@ -53,38 +53,14 @@ class Game < Hasu::Window
     @frames +=1
     @elapsed_time += (Time.now - @last_frame_start)
     @last_frame_start = Time.now
-    # puts "@frames: #{@frames}"
 
     @others.each { |p| p.follow(@player) }
-
-    if button_down? Gosu::KbUp
-      @player.move_up
-    end
-    if button_down? Gosu::KbDown
-      @player.move_down#speed.y = @player_speed
-    end
-
-    if button_down? Gosu::KbLeft
-      @player.move_left#speed.x = -@player_speed
-    end
-    if button_down? Gosu::KbRight
-      @player.move_right#speed.x = @player_speed
-    end
-
-    if button_down? Gosu::KbO
-      @osd.toggle
-    end
-
-    if button_down? Gosu::KbSpace
-      reset_game
-    end
 
     @player.friction
     @player.accelerate
     @player.move
-    @player.acc = Vector[0, 0]
 
-    @osd.data = {:frames => @frames, :elapsed => '%.2f' % @elapsed_time}
+    @osd.data = { :frames => @frames, :elapsed => '%.2f' % @elapsed_time }
   end
 
   def draw
@@ -96,6 +72,21 @@ class Game < Hasu::Window
   def needs_cursor?
     true
   end
+
+  def button_down(id)
+    case id
+      when Gosu::KbSpace
+        reset_game
+    end
+    @player.button_down(id)
+    @osd.button_down(id)
+  end
+
+  def button_up(id)
+    @player.button_up(id)
+    @osd.button_up(id)
+  end
+
 end
 
 $game = Game.run
