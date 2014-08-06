@@ -18,6 +18,7 @@ require 'matrix'
 # --- convenience methods - x & y for 2d stuff
 
 class Vector
+
   def x
     self[0]
   end
@@ -36,10 +37,7 @@ class Vector
 
   def constrain(max_length)
     factor = max_length/self.r
-    if (factor < 1)
-      return self*factor
-    end
-    self
+    (factor < 1) ? self*factor : self
   end
 
 end

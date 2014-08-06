@@ -29,9 +29,12 @@ class Game < Hasu::Window
 
     create_player
     create_others
+    create_osd
+  end
 
-    q = Quad.new(120, Gosu::Color.new(100, 20, 20, 20),  Gosu::Color.new(120, 80, 80, 80))
-    @osd = OSD.new(Vector[0,0], q,  Gosu::Font.new(self, 'Arial', 24))
+  def create_osd
+    q = Quad.new(120, Gosu::Color.new(100, 20, 20, 20), Gosu::Color.new(120, 80, 80, 80))
+    @osd = OSD.new(Vector[0, 0], q, @font)
   end
 
   def create_player
@@ -55,33 +58,33 @@ class Game < Hasu::Window
     @others.each { |p| p.follow(@player) }
 
     if button_down? Gosu::KbUp
-      @player.speed.y = -@player_speed
+      @player.move_up
     end
     if button_down? Gosu::KbDown
-      @player.speed.y = @player_speed
+      @player.move_down#speed.y = @player_speed
     end
 
     if button_down? Gosu::KbLeft
-      @player.speed.x = -@player_speed
+      @player.move_left#speed.x = -@player_speed
     end
     if button_down? Gosu::KbRight
-      @player.speed.x = @player_speed
+      @player.move_right#speed.x = @player_speed
     end
 
     if button_down? Gosu::KbO
       @osd.toggle
     end
 
-
     if button_down? Gosu::KbSpace
       reset_game
     end
 
+    @player.friction
+    @player.accelerate
     @player.move
-    @player.speed = Vector[0, 0]
+    @player.acc = Vector[0, 0]
 
-    # OSD
-    @osd.data = {:frames => @frames}
+    @osd.data = {:frames => @frames, :elapsed => '%.2f' % @elapsed_time}
   end
 
   def draw
@@ -96,5 +99,4 @@ class Game < Hasu::Window
 end
 
 $game = Game.run
-
 
