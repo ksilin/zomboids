@@ -39,12 +39,20 @@ class Game < Hasu::Window
     @cherry = Gosu::Image.new(self, 'assets/graphics/PM_Cherry.png')
     @background_music = Gosu::Song.new(self, 'assets/audio/background.ogg')
     @background_music.volume = 0.1
+
+    @animation = (1..6).map{|i| Gosu::Image.new(self, "assets/graphics/bob-#{i}.png")}
+    @animation_length = 350
+    @current_animation_pos = 0
+
     reset_game
   end
 
   def reset_game
     @frames = 0
     @elapsed_time = 0
+
+    @current_animation_pos = 0
+
     @last_frame_start = Gosu::milliseconds
     @font = Gosu::Font.new(self, 'Arial', 24)
 
@@ -79,6 +87,11 @@ class Game < Hasu::Window
     @elapsed_time += delta
     @last_frame_start = Gosu::milliseconds
 
+    @current_animation_pos += delta
+    if @current_animation_pos > @animation_length
+      @current_animation_pos = 0
+    end
+
     @others.each { |p| p.follow(@player) }
 
     @player.friction
@@ -92,6 +105,11 @@ class Game < Hasu::Window
   def draw
     draw_background
     @cherry.draw(@center.x, @center.y, 0, 0.5, 0.5)
+
+    idx = ([@animation.size - 1, (@animation.size) * @current_animation_pos/@animation_length].min)
+    img_to_draw = @animation[idx]
+    img_to_draw.draw(WIDTH - 32, HEIGHT - 32, 0, 1, 1, Gosu::Color::GREEN)
+
     @player.draw(self)
     @others.each { |o| o.draw(self) }
     @osd.draw(self)
