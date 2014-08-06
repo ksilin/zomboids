@@ -19,6 +19,7 @@ class Game < Hasu::Window
     @center = Vector[WIDTH/2, HEIGHT/2]
     reset_game
     @player_speed = 10
+    @cherry = Gosu::Image.new(self, "assets/graphics/PM_Cherry.png")
   end
 
   def reset_game
@@ -64,6 +65,7 @@ class Game < Hasu::Window
   end
 
   def draw
+    @cherry.draw(@center.x, @center.y, 0, 0.5, 0.5)
     @player.draw(self)
     @others.each { |o| o.draw(self) }
     @osd.draw(self)
