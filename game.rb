@@ -8,26 +8,36 @@ Hasu.load 'osd.rb'
 
 class Game < Hasu::Window
 
+  module Z
+    Background, Others, Player, UI = *0..3
+  end
+
   WIDTH = 640
   HEIGHT = 480
+
+  TOP_COLOR = Gosu::Color::BLACK
+  BOTTOM_COLOR = Gosu::Color::BLACK
+  TITLE = 'Zomboid - a Gosu skeleton'
 
   attr_reader :player, :others, :frames
 
 
   def initialize
     super(WIDTH, HEIGHT, false)
+    self.caption = TITLE
+
     @center = Vector[WIDTH/2, HEIGHT/2]
     @player_speed = 10
     @cherry = Gosu::Image.new(self, 'assets/graphics/PM_Cherry.png')
     @background_music = Gosu::Song.new(self, 'assets/audio/background.ogg')
-    @background_music.volume = 0.25
+    @background_music.volume = 0.1
     reset_game
   end
 
   def reset_game
     @frames = 0
     @elapsed_time = 0
-    @last_frame_start = Time.now
+    @last_frame_start = Gosu::milliseconds
     @font = Gosu::Font.new(self, 'Arial', 24)
 
     @background_music.play(true)
@@ -56,8 +66,10 @@ class Game < Hasu::Window
 
   def update
     @frames +=1
-    @elapsed_time += (Time.now - @last_frame_start)
-    @last_frame_start = Time.now
+    delta = (Gosu::milliseconds - @last_frame_start)
+    @fps = 1000 / delta if delta > 0
+    @elapsed_time += delta
+    @last_frame_start = Gosu::milliseconds
 
     @others.each { |p| p.follow(@player) }
 
@@ -66,14 +78,25 @@ class Game < Hasu::Window
     @player.move
     @player.constrain_location
 
-    @osd.data = { :frames => @frames, :elapsed => '%.2f' % @elapsed_time }
+    @osd.data = { :frames => @frames, :seconds => '%.2f' % (@elapsed_time/1000), :fps =>  '%.2f' % @fps}
   end
 
   def draw
+    draw_background
     @cherry.draw(@center.x, @center.y, 0, 0.5, 0.5)
     @player.draw(self)
     @others.each { |o| o.draw(self) }
     @osd.draw(self)
+  end
+
+  def draw_background
+    draw_quad(
+        0, 0, TOP_COLOR,
+        WIDTH, 0, TOP_COLOR,
+        0, HEIGHT, BOTTOM_COLOR,
+        WIDTH, HEIGHT, BOTTOM_COLOR,
+        Z::Background
+    )
   end
 
   def needs_cursor?

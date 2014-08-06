@@ -17,7 +17,7 @@ class Player
   end
 
   def draw(window)
-    @drawable.draw(window, location)
+    @drawable.draw(window, location, Game::Z::Player)
   end
 
   def friction

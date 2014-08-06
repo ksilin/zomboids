@@ -17,8 +17,8 @@ class OSD
 
     @drawable.draw(window, @location)
     @data.each_with_index { |(key, value), i|
-# adjust to location
-      @font.draw("#{key}: #{value}", location.x, location.y + i*20, 0)
+      @font.draw("#{key}: #{value}",
+                 location.x, location.y + i*@font.height, Game::Z::UI)
     }
   end
 
