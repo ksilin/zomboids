@@ -17,13 +17,25 @@ class Boid
   end
 
   def follow(other)
-    calc_acceleration(other)
-    calc_speed
+    calc_follow_target_vector(other)
     move
   end
 
-  def calc_acceleration(other)
-    @acc = vec_to(other).constrain(@max_acceleration)
+  def flee(other)
+    calc_flee_target_vector(other)
+    move
+  end
+
+  def calc_follow_target_vector(other)
+    @target_vector = vec_to(other)
+  end
+
+  def calc_flee_target_vector(other)
+    @target_vector = other.vec_to(self)
+  end
+
+  def calc_acceleration
+    @acc = @target_vector.constrain(@max_acceleration)
     @acc += Vector[rand - 0.5, rand - 0.5].constrain(@max_acceleration*5)
   end
 
@@ -50,7 +62,11 @@ class Boid
   end
 
   def draw(window)
-    @drawable.draw(window, location)
+    if (:enemy_fear == $game.state)
+      @drawable.draw(window, location, Game::Z::Others, Game::ENEMY_FEAR)
+    else
+      @drawable.draw(window, location)
+    end
   end
 
   def accelerate
@@ -58,6 +74,8 @@ class Boid
   end
 
   def move
+    calc_acceleration
+    calc_speed
     # puts "location: #{location}, speed: #{@speed}"
     self.location += @speed
   end

@@ -40,7 +40,6 @@ class Quad
 
     window.draw_line(left(loc), top(loc), @border_color,
                      left(loc), bottom(loc), @border_color, z)
-
   end
 
 end

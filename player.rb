@@ -40,6 +40,10 @@ class Player
     @drawable.draw(window, location, Game::Z::Player, color)
   end
 
+  def vec_to(obj)
+    obj.location - self.location
+  end
+
   def friction
     @speed *= 0.7
   end

@@ -24,6 +24,10 @@ class Game < Hasu::Window
   PLAYER_COLOR = Gosu::Color.from_hsv(147, 0.79, 0.97)
   PLAYER_COLOR_2 = Gosu::Color.from_hsv(347, 0.78, 0.89)
   ENEMY_COLOR = Gosu::Color.from_hsv(57, 0.98, 0.72)
+  ENEMY_FEAR = Gosu::Color.from_hsv(300, 0.98, 0.72)
+
+  CHERRY_HEALTH = 800
+  ZOMBIE_BITE = 10
 
   PALETTE = [Gosu::Color.new(255, 0, 90, 63),
              Gosu::Color.new(255, 0, 131, 94),
@@ -32,7 +36,7 @@ class Game < Hasu::Window
              Gosu::Color.new(255, 251, 64, 64)
   ]
 
-  attr_reader :player, :others, :frames, :paused
+  attr_reader :player, :others, :frames, :paused, :state
 
 
   def initialize
@@ -54,6 +58,7 @@ class Game < Hasu::Window
     @paused = false
     @frames = 0
     @elapsed_time = 0
+    @state_time = 0
 
     @current_animation_pos = 0
 
@@ -81,7 +86,7 @@ class Game < Hasu::Window
   def create_others(how_many = 5)
     @others = how_many.times.map do
       on_circle = Vector[rand - 0.5, rand - 0.5].normalize * 300
-      q = Quad.new(20*(0.5 + rand), ENEMY_COLOR)# PALETTE[rand(PALETTE.size)])
+      q = Quad.new(20*(0.5 + rand), ENEMY_COLOR) # PALETTE[rand(PALETTE.size)])
       Boid.new(@center + on_circle, Vector[0, 0], q)
     end
   end
@@ -92,6 +97,12 @@ class Game < Hasu::Window
 
     @fps = 1000 / delta if delta > 0
     @elapsed_time += delta
+    @state_time += delta
+
+    if(:enemy_fear == @state && @state_time > 3000)
+      @state = :snafu
+    end
+
     @last_frame_start = Gosu::milliseconds
 
     @osd.data = { :frames => @frames,
@@ -103,23 +114,34 @@ class Game < Hasu::Window
 
     @animation.update(delta)
 
-    @others.each { |p| p.follow(@player) }
+    if (:enemy_fear == @state)
+      @others.each { |p| p.flee(@player) }
+    else
+      @others.each { |p| p.follow(@player) }
+    end
 
     @player.update(delta)
 
-    @eating_cherries = @cherries.select{|c| (c - player.location).r < 20 }
+    @eating_cherries = @cherries.select { |c| (c - player.location).r < 20 }
 
-    @eating_cherries.each{|c|
+    @eating_cherries.each { |c|
       puts 'eating a cherry'
-      @player.health += 500
+      @player.health += CHERRY_HEALTH
+      @state = :enemy_fear
+      @state_time = 0
     }
     @cherries -= @eating_cherries
 
-    @touching_enemies = @others.select{|o| (o.location - player.location).r < 20 }
+    @touching_enemies = @others.select { |o| (o.location - player.location).r < 20 }
 
-    @touching_enemies.each{|c|
+    @touching_enemies.each { |c|
+      if (:enemy_fear == @state)
+        puts 'killed a zombie'
+        @others.delete(c)
+      else
+        @player.health -= ZOMBIE_BITE
+      end
       puts 'being eaten by a zombie'
-      @player.health -= 10
     }
 
     replenish_cherries
@@ -134,7 +156,7 @@ class Game < Hasu::Window
   def draw
     draw_background
 
-    @cherries.each{|loc| @cherry.draw(loc.x, loc.y, 0, 0.5, 0.5)}
+    @cherries.each { |loc| @cherry.draw(loc.x, loc.y, 0, 0.5, 0.5) }
 
     @animation.draw(Vector[WIDTH - 32, HEIGHT - 32])
 
@@ -192,5 +214,6 @@ class Game < Hasu::Window
 
 end
 
-$game = Game.run
+$game = Game.new
+$game.show
 
