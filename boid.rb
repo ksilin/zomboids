@@ -16,14 +16,6 @@ class Boid
     @max_acceleration = options[:max_acceleration] || 0.5
   end
 
-  def acquire_target
-
-  end
-
-  def calc_force
-
-  end
-
   def follow(other)
     calc_acceleration(other)
     calc_speed

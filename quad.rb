@@ -1,8 +1,9 @@
 class Quad
 
-  def initialize(size, color)
+  def initialize(size, color, border_color = Gosu::Color::WHITE)
     @size = size
     @color = color
+    @border_color = border_color
   end
 
   def left(loc)
@@ -27,6 +28,19 @@ class Quad
         right(loc), top(loc), @color,
         right(loc), bottom(loc), @color,
         left(loc), bottom(loc), @color)
+
+    window.draw_line(left(loc), top(loc), @border_color,
+                     right(loc), top(loc), @border_color)
+
+    window.draw_line(right(loc), top(loc), @border_color,
+                     right(loc), bottom(loc), @border_color)
+
+    window.draw_line(right(loc), bottom(loc), @border_color,
+                     left(loc), bottom(loc), @border_color)
+
+    window.draw_line(left(loc), top(loc), @border_color,
+                     left(loc), bottom(loc), @border_color)
+
   end
 
 end
