@@ -5,7 +5,7 @@ require 'matrix'
 
 class Player
 
-  attr_accessor :speed, :acc, :color, :location
+  attr_accessor :speed, :acc, :color, :location, :health
 
   def initialize(loc, drawable = Quad.new(20, Gosu::Color.new(255, 251,242,201)))
     @location = loc
@@ -14,14 +14,34 @@ class Player
     @acc_delta = 1
     @max_acc = 5
     @acc = Vector[0, 0]
+    @health = 1000
+  end
+
+  def update(delta)
+    fatigue
+    friction
+    accelerate
+    move
+    constrain_location
+  end
+
+  def fatigue
+    @health -= 1
   end
 
   def draw(window)
-    @drawable.draw(window, location, Game::Z::Player)
+    coeff = [(@health/1000.0), 1].min
+    # TODO - extract blend function
+    c = Game::PLAYER_COLOR
+    d = Game::PLAYER_COLOR_2
+    color = Gosu::Color.new(255, c.red*coeff + d.red*(1 - coeff),
+                                 c.green*coeff + d.green*(1 - coeff),
+                                 c.blue*coeff + d.blue*(1 - coeff))
+    @drawable.draw(window, location, Game::Z::Player, color)
   end
 
   def friction
-    @speed *= 0.9
+    @speed *= 0.7
   end
 
   def accelerate

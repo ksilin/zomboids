@@ -17,18 +17,22 @@ class Game < Hasu::Window
   HEIGHT = 480
 
   # TOP_COLOR = Gosu::Color.new(255, 94,82,58)
-  TOP_COLOR = Gosu::Color.new(255, 23,4,9)
-  BOTTOM_COLOR = Gosu::Color.new(255, 61,51,39)
+  TOP_COLOR = Gosu::Color.new(255, 23, 4, 9)
+  BOTTOM_COLOR = Gosu::Color.new(255, 61, 51, 39)
   TITLE = 'Zomboid - a Gosu skeleton'
 
-  PALETTE = [Gosu::Color.new(255,0,90,63),
-             Gosu::Color.new(255,0,131,94),
-             Gosu::Color.new(255,0,171,128),
-             Gosu::Color.new(255,249,14,97),
-             Gosu::Color.new(255,251,64,64)
+  PLAYER_COLOR = Gosu::Color.from_hsv(147, 0.79, 0.97)
+  PLAYER_COLOR_2 = Gosu::Color.from_hsv(347, 0.78, 0.89)
+  ENEMY_COLOR = Gosu::Color.from_hsv(57, 0.98, 0.72)
+
+  PALETTE = [Gosu::Color.new(255, 0, 90, 63),
+             Gosu::Color.new(255, 0, 131, 94),
+             Gosu::Color.new(255, 0, 171, 128),
+             Gosu::Color.new(255, 249, 14, 97),
+             Gosu::Color.new(255, 251, 64, 64)
   ]
 
-  attr_reader :player, :others, :frames
+  attr_reader :player, :others, :frames, :paused
 
 
   def initialize
@@ -38,15 +42,16 @@ class Game < Hasu::Window
     @center = Vector[WIDTH/2, HEIGHT/2]
     @player_speed = 10
     @cherry = Gosu::Image.new(self, 'assets/graphics/PM_Cherry.png')
+
     @background_music = Gosu::Song.new(self, 'assets/audio/background.ogg')
     @background_music.volume = 0.1
 
-    @animation = Animation.new((1..6).map{|i| Gosu::Image.new(self, "assets/graphics/bob-#{i}.png")}, 350)
-
+    @animation = Animation.new((1..6).map { |i| Gosu::Image.new(self, "assets/graphics/bob-#{i}.png") }, 350)
     reset_game
   end
 
   def reset_game
+    @paused = false
     @frames = 0
     @elapsed_time = 0
 
@@ -60,6 +65,8 @@ class Game < Hasu::Window
     create_player
     create_others
     create_osd
+    @cherries = [Vector[WIDTH - 100, 50]]
+
   end
 
   def create_osd
@@ -73,8 +80,8 @@ class Game < Hasu::Window
 
   def create_others(how_many = 5)
     @others = how_many.times.map do
-      on_circle = Vector[rand - 0.5, rand - 0.5].normalize * 500
-      q = Quad.new(20*(0.5 + rand), PALETTE[rand(PALETTE.size)])
+      on_circle = Vector[rand - 0.5, rand - 0.5].normalize * 300
+      q = Quad.new(20*(0.5 + rand), ENEMY_COLOR)# PALETTE[rand(PALETTE.size)])
       Boid.new(@center + on_circle, Vector[0, 0], q)
     end
   end
@@ -82,27 +89,65 @@ class Game < Hasu::Window
   def update
     @frames +=1
     delta = (Gosu::milliseconds - @last_frame_start)
+
     @fps = 1000 / delta if delta > 0
     @elapsed_time += delta
     @last_frame_start = Gosu::milliseconds
+
+    @osd.data = { :frames => @frames,
+                  :health => @player.health,
+                  :seconds => '%.2f' % (@elapsed_time/1000),
+                  :fps => '%.2f' % @fps }
+
+    return if @paused
 
     @animation.update(delta)
 
     @others.each { |p| p.follow(@player) }
 
-    @player.friction
-    @player.accelerate
-    @player.move
-    @player.constrain_location
+    @player.update(delta)
 
-    @osd.data = { :frames => @frames, :seconds => '%.2f' % (@elapsed_time/1000), :fps =>  '%.2f' % @fps}
+    @eating_cherries = @cherries.select{|c| (c - player.location).r < 20 }
+
+    @eating_cherries.each{|c|
+      puts 'eating a cherry'
+      @player.health += 500
+    }
+    @cherries -= @eating_cherries
+
+    @touching_enemies = @others.select{|o| (o.location - player.location).r < 20 }
+
+    @touching_enemies.each{|c|
+      puts 'being eaten by a zombie'
+      @player.health -= 10
+    }
+
+    replenish_cherries
+  end
+
+  def replenish_cherries
+    if rand > 0.995 && @cherries.size < 3
+      @cherries << Vector[WIDTH * rand, HEIGHT * rand]
+    end
   end
 
   def draw
     draw_background
-    @cherry.draw(@center.x, @center.y, 0, 0.5, 0.5)
+
+    @cherries.each{|loc| @cherry.draw(loc.x, loc.y, 0, 0.5, 0.5)}
 
     @animation.draw(Vector[WIDTH - 32, HEIGHT - 32])
+
+    if (@player.health < 0)
+      @lifetime ||= (@elapsed_time/1000).to_i
+      @paused = true
+      @font.draw('You held out for',
+                 WIDTH/2 - 200, HEIGHT/2, Game::Z::UI,
+                 2, 2, Gosu::Color.from_hsv(@frames%360, 1, 1))
+      @font.draw("#{@lifetime} seconds",
+                 WIDTH/2 - 200, HEIGHT/2 + @font.height, Game::Z::UI,
+                 2, 2, Gosu::Color.from_hsv(@frames%360, 1, 1))
+    end
 
     @player.draw(self)
     @others.each { |o| o.draw(self) }
@@ -129,6 +174,8 @@ class Game < Hasu::Window
         reset_game
       when Gosu::KbM
         @background_music.paused? ? @background_music.play(true) : @background_music.pause
+      when Gosu::KbP
+        toggle_pause
     end
     @player.button_down(id)
     @osd.button_down(id)
@@ -137,6 +184,10 @@ class Game < Hasu::Window
   def button_up(id)
     @player.button_up(id)
     @osd.button_up(id)
+  end
+
+  def toggle_pause
+    @paused = !@paused
   end
 
 end

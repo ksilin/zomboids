@@ -22,24 +22,24 @@ class Quad
     loc.y + @size
   end
 
-  def draw(window, loc, z = Game::Z::Others)
+  def draw(window, loc, z = Game::Z::Others, color = @color)
     window.draw_quad(
-        left(loc), top(loc),  @color,
-        right(loc), top(loc), @color,
-        right(loc), bottom(loc), @color,
-        left(loc), bottom(loc), @color, z)
+        left(loc), top(loc),  color,
+        right(loc), top(loc), color,
+        right(loc), bottom(loc), color,
+        left(loc), bottom(loc), color, z)
 
     window.draw_line(left(loc), top(loc), @border_color,
-                     right(loc), top(loc), @border_color)
+                     right(loc), top(loc), @border_color, z)
 
     window.draw_line(right(loc), top(loc), @border_color,
-                     right(loc), bottom(loc), @border_color)
+                     right(loc), bottom(loc), @border_color, z)
 
     window.draw_line(right(loc), bottom(loc), @border_color,
-                     left(loc), bottom(loc), @border_color)
+                     left(loc), bottom(loc), @border_color, z)
 
     window.draw_line(left(loc), top(loc), @border_color,
-                     left(loc), bottom(loc), @border_color)
+                     left(loc), bottom(loc), @border_color, z)
 
   end
 
