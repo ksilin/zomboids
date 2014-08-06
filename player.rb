@@ -29,7 +29,7 @@ class Player
   end
 
   def constrain_acc
-    @acc = @acc.contrain(@max_acc)
+    @acc = @acc.constrain(@max_acc)
   end
 
   def move

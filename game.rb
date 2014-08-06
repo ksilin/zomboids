@@ -17,9 +17,11 @@ class Game < Hasu::Window
   def initialize
     super(WIDTH, HEIGHT, false)
     @center = Vector[WIDTH/2, HEIGHT/2]
-    reset_game
     @player_speed = 10
-    @cherry = Gosu::Image.new(self, "assets/graphics/PM_Cherry.png")
+    @cherry = Gosu::Image.new(self, 'assets/graphics/PM_Cherry.png')
+    @background_music = Gosu::Song.new(self, 'assets/audio/background.ogg')
+    @background_music.volume = 0.25
+    reset_game
   end
 
   def reset_game
@@ -27,6 +29,8 @@ class Game < Hasu::Window
     @elapsed_time = 0
     @last_frame_start = Time.now
     @font = Gosu::Font.new(self, 'Arial', 24)
+
+    @background_music.play(true)
 
     create_player
     create_others
@@ -80,6 +84,8 @@ class Game < Hasu::Window
     case id
       when Gosu::KbSpace
         reset_game
+      when Gosu::KbM
+        @background_music.paused? ? @background_music.play(true) : @background_music.pause
     end
     @player.button_down(id)
     @osd.button_down(id)
