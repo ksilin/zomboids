@@ -60,6 +60,7 @@ class Game < Hasu::Window
     @player.friction
     @player.accelerate
     @player.move
+    @player.constrain_location
 
     @osd.data = { :frames => @frames, :elapsed => '%.2f' % @elapsed_time }
   end

@@ -12,7 +12,7 @@ class Boid
     @weight = options[:weight] || 1.0
     @size = options[:size] || 20
     @friction = options[:friction] ||0.9
-    @max_speed = options[:max_speed] || 5
+    @max_speed = options[:max_speed] || 2
     @max_acceleration = options[:max_acceleration] || 0.5
   end
 
@@ -24,7 +24,7 @@ class Boid
 
   def calc_acceleration(other)
     @acc = vec_to(other).constrain(@max_acceleration)
-    @acc += Vector[rand - 0.5, rand - 0.5].normalize
+    @acc += Vector[rand - 0.5, rand - 0.5].constrain(@max_acceleration*5)
   end
 
   def distance_from(boid)

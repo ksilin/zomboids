@@ -36,6 +36,13 @@ class Player
     self.location += @speed
   end
 
+  def constrain_location
+     location.x = 0 if location.x < 0
+     location.y = 0 if location.y < 0
+     location.x = Game::WIDTH - 20 if location.x > (Game::WIDTH - 20)
+     location.y = Game::HEIGHT - 20 if location.y > (Game::HEIGHT - 20)
+  end
+
   def move_up
     @acc.y = -@acc_delta
   end
